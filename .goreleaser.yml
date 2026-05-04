@@ -1,0 +1,49 @@
+project_name: cctxm
+before:
+  hooks:
+    - go mod tidy
+    - go test ./...
+builds:
+  - env:
+      - CGO_ENABLED=0
+    goos:
+      - linux
+      - darwin
+      - windows
+    goarch:
+      - amd64
+      - arm64
+    ldflags:
+      - -s -w -X main.version={{.Version}}
+archives:
+  - format: tar.gz
+    name_template: "{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}"
+    format_overrides:
+      - goos: windows
+        format: zip
+checksum:
+  name_template: "checksums.txt"
+release:
+  github:
+    owner: jmrmedev
+    name: cctxm
+changelog:
+  sort: asc
+  filters:
+    exclude:
+      - "^docs:"
+      - "^test:"
+brews:
+  - repository:
+      owner: jmrmedev
+      name: homebrew-tap
+    homepage: "https://github.com/jmrmedev/cctxm"
+    description: "Copilot Context Manager — intelligent output filtering for LLM-assisted development"
+    license: "MIT"
+scoops:
+  - repository:
+      owner: jmrmedev
+      name: scoop-bucket
+    homepage: "https://github.com/jmrmedev/cctxm"
+    description: "Copilot Context Manager — intelligent output filtering for LLM-assisted development"
+    license: "MIT"
