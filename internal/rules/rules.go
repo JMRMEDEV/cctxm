@@ -68,6 +68,18 @@ func Inject(workspaceRoot, cctxmDir string, ruleGlobs []string) error {
 	var content strings.Builder
 	content.WriteString(coreInstructions)
 
+	// Detect and append hook rules
+	analysis := DetectHooks(workspaceRoot)
+	if hookRule := GenerateHookRule(analysis); hookRule != "" {
+		content.WriteString("\n---\n")
+		content.WriteString(hookRule)
+
+		// Patch hook file if possible
+		if analysis.Patchable {
+			PatchHookFile(analysis)
+		}
+	}
+
 	// Append user rules
 	for _, glob := range ruleGlobs {
 		pattern := glob
@@ -121,6 +133,13 @@ func Restore(workspaceRoot, cctxmDir string) error {
 func Show(workspaceRoot string, ruleGlobs []string) string {
 	var content strings.Builder
 	content.WriteString(coreInstructions)
+
+	// Include hook rules in preview
+	analysis := DetectHooks(workspaceRoot)
+	if hookRule := GenerateHookRule(analysis); hookRule != "" {
+		content.WriteString("\n---\n")
+		content.WriteString(hookRule)
+	}
 
 	for _, glob := range ruleGlobs {
 		pattern := glob
